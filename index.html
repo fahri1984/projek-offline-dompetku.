@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#14532d" />
+  <title>DompetKu</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ===== HALAMAN MASUK / DAFTAR ===== -->
+  <section id="auth-view" class="auth">
+    <div class="auth-card">
+      <div class="logo">Rp</div>
+      <h1>DompetKu</h1>
+      <p class="muted">Catat keuangan pribadi Anda</p>
+
+      <form id="login-form" class="form">
+        <h2>Masuk</h2>
+        <label>Email<input type="email" name="email" required autocomplete="email" /></label>
+        <label>Password<input type="password" name="password" required autocomplete="current-password" /></label>
+        <p class="error" data-for="login"></p>
+        <button type="submit" class="btn-primary">Masuk</button>
+        <p class="center">Belum punya akun? <a href="#" data-switch="register">Daftar</a></p>
+      </form>
+
+      <form id="register-form" class="form hidden">
+        <h2>Buat akun</h2>
+        <label>Nama lengkap<input type="text" name="name" required autocomplete="name" /></label>
+        <label>Email<input type="email" name="email" required autocomplete="email" /></label>
+        <label>Password (minimal 8 karakter)<input type="password" name="password" required minlength="8" autocomplete="new-password" /></label>
+        <label>Ulangi password<input type="password" name="confirm" required minlength="8" autocomplete="new-password" /></label>
+        <label>Saldo awal (Rp)<input type="number" name="opening" min="0" step="1" value="0" inputmode="numeric" /></label>
+        <p class="error" data-for="register"></p>
+        <button type="submit" class="btn-primary">Daftar</button>
+        <p class="center">Sudah punya akun? <a href="#" data-switch="login">Masuk</a></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===== APLIKASI UTAMA ===== -->
+  <div id="app-view" class="app hidden">
+    <header class="topbar">
+      <h1>DompetKu</h1>
+      <button id="logout-btn" class="btn-ghost">Keluar</button>
+    </header>
+
+    <main class="content">
+      <!-- Dashboard -->
+      <section id="tab-dashboard" class="tab">
+        <div class="card balance-card">
+          <p class="muted">Saldo saat ini</p>
+          <p class="balance" id="balance">Rp0</p>
+          <p class="muted small" id="greeting"></p>
+        </div>
+        <div class="grid-2">
+          <div class="card stat income"><p class="muted small">Pemasukan bulan ini</p><p id="month-income">Rp0</p></div>
+          <div class="card stat expense"><p class="muted small">Pengeluaran bulan ini</p><p id="month-expense">Rp0</p></div>
+        </div>
+        <div class="card">
+          <p class="muted small">Selisih bulan ini</p>
+          <p id="month-diff" class="strong">Rp0</p>
+        </div>
+        <div class="card">
+          <h3>Grafik pemasukan &amp; pengeluaran (6 bulan terakhir)</h3>
+          <div id="dashboard-trend-bars"></div>
+        </div>
+        <div class="card">
+          <h3>Pengeluaran per kategori (bulan ini)</h3>
+          <div id="category-bars"></div>
+        </div>
+        <div class="card">
+          <h3>Transaksi terbaru</h3>
+          <ul id="recent-list" class="tx-list"></ul>
+        </div>
+      </section>
+
+      <!-- Transaksi -->
+      <section id="tab-transactions" class="tab hidden">
+        <div class="toolbar">
+          <input id="tx-search" type="search" placeholder="Cari catatan atau kategori" />
+          <select id="tx-type">
+            <option value="">Semua jenis</option>
+            <option value="income">Pemasukan</option>
+            <option value="expense">Pengeluaran</option>
+          </select>
+          <select id="tx-sort">
+            <option value="desc">Terbaru</option>
+            <option value="asc">Terlama</option>
+          </select>
+        </div>
+        <ul id="tx-list" class="tx-list card"></ul>
+        <p id="tx-empty" class="muted center hidden">Belum ada transaksi.</p>
+      </section>
+
+      <!-- Laporan -->
+      <section id="tab-reports" class="tab hidden">
+        <div class="card">
+          <h3>Filter laporan</h3>
+          <div class="toolbar">
+            <select id="rep-period">
+              <option value="month">Bulanan</option>
+              <option value="year">Tahunan</option>
+              <option value="range">Rentang tanggal</option>
+            </select>
+            <input id="rep-month" type="month" />
+            <input id="rep-year" type="number" min="2000" max="2100" />
+          </div>
+          <div id="rep-range" class="toolbar hidden">
+            <input id="rep-from" type="date" aria-label="Dari tanggal" />
+            <input id="rep-to" type="date" aria-label="Sampai tanggal" />
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card stat income"><p class="muted small">Total pemasukan</p><p id="rep-income">Rp0</p></div>
+          <div class="card stat expense"><p class="muted small">Total pengeluaran</p><p id="rep-expense">Rp0</p></div>
+        </div>
+        <div class="card"><p class="muted small">Selisih</p><p id="rep-diff" class="strong">Rp0</p></div>
+        <div class="card">
+          <h3>Tren 6 bulan terakhir</h3>
+          <div id="trend-bars"></div>
+        </div>
+        <div class="card">
+          <h3>Rincian transaksi</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Tanggal</th><th>Jenis</th><th>Kategori</th><th>Keterangan</th><th class="num">Nominal</th></tr></thead>
+              <tbody id="rep-body"></tbody>
+            </table>
+          </div>
+          <p id="rep-empty" class="muted center hidden">Tidak ada transaksi pada periode ini.</p>
+        </div>
+        <button id="export-btn" class="btn-primary">Ekspor ke Excel (CSV)</button>
+      </section>
+
+      <!-- Profil -->
+      <section id="tab-profile" class="tab hidden">
+        <div class="card">
+          <h3>Profil</h3>
+          <p id="profile-name" class="strong"></p>
+          <p id="profile-email" class="muted"></p>
+          <label>Saldo awal (Rp)
+            <input type="number" id="profile-opening" min="0" step="1" inputmode="numeric" />
+          </label>
+          <button id="save-opening" class="btn-primary">Simpan saldo awal</button>
+          <p class="muted small">Saldo awal hanya dihitung sekali. Ubah di sini jika perlu.</p>
+        </div>
+        <div class="card">
+          <h3>Kategori</h3>
+          <form id="cat-form" class="toolbar">
+            <input id="cat-name" placeholder="Nama kategori baru" required maxlength="50" />
+            <select id="cat-type">
+              <option value="expense">Pengeluaran</option>
+              <option value="income">Pemasukan</option>
+            </select>
+            <button class="btn-primary small-btn" type="submit">Tambah</button>
+          </form>
+          <ul id="cat-list" class="tx-list"></ul>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Navigasi utama">
+      <button data-tab="dashboard" class="active">Beranda</button>
+      <button data-tab="transactions">Transaksi</button>
+      <button data-tab="reports">Laporan</button>
+      <button data-tab="profile">Profil</button>
+    </nav>
+
+    <button id="fab" class="fab" aria-label="Tambah transaksi">+</button>
+  </div>
+
+  <!-- Dialog tambah / edit transaksi -->
+  <dialog id="tx-dialog">
+    <form id="tx-form" class="form">
+      <h2 id="tx-dialog-title">Tambah transaksi</h2>
+      <div class="segmented">
+        <label><input type="radio" name="type" value="expense" checked /> Pengeluaran</label>
+        <label><input type="radio" name="type" value="income" /> Pemasukan</label>
+      </div>
+      <label>Nominal (Rp)<input type="number" name="amount" min="1" step="1" required inputmode="numeric" /></label>
+      <label>Kategori<select name="category" required></select></label>
+      <label>Tanggal<input type="date" name="date" required /></label>
+      <label>Catatan (opsional)<input type="text" name="note" maxlength="255" /></label>
+      <p class="error" data-for="tx"></p>
+      <div class="dialog-actions">
+        <button type="button" class="btn-ghost" id="tx-cancel">Batal</button>
+        <button type="submit" class="btn-primary small-btn">Simpan</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast hidden" role="status"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
